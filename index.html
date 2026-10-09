@@ -43,18 +43,10 @@ a{color:var(--gp)}
 :focus-visible{outline:2px solid var(--gc);outline-offset:2px}
 
 /* ---------- header band: the mill certificate block ---------- */
-.band{background:var(--mill);color:#E7EEF2;padding:22px 0 0}
+.band{background:var(--mill);color:#E7EEF2;padding:16px 0 0}
 .ident{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;
-  font-size:13px;color:#8FA6B4;border-bottom:1px solid #1E3848;padding-bottom:12px}
+  font-size:13px;color:#8FA6B4;padding-bottom:14px}
 .ident b{color:#E7EEF2;font-weight:600;font-size:15px;letter-spacing:-.01em}
-
-.hero{padding:22px 0 20px}
-.hero h1{
-  margin:0;font-size:clamp(25px,3vw,36px);line-height:1.14;font-weight:600;
-  letter-spacing:-.025em;color:#FFF;max-width:28ch;
-}
-.hero h1 .fell{color:var(--gc-bright)}
-.hero p{margin:11px 0 0;color:#9DB3C0;font-size:14.5px;max-width:64ch}
 
 /* ---------- controls + tabs ---------- */
 /* the controls follow you down the page: month and branch are changed constantly */
@@ -151,7 +143,6 @@ footer{border-top:1px solid var(--rule);padding:18px 0 40px;font-size:12.5px;col
 footer p{margin:0 0 5px;max-width:78ch}
 
 @media (max-width:860px){
-  .hero{grid-template-columns:1fr;gap:22px;align-items:start}
   .tabs{margin-left:0;width:100%;overflow-x:auto}
   .reading .v{font-size:23px}
 }
@@ -169,10 +160,6 @@ footer p{margin:0 0 5px;max-width:78ch}
       <span>Receivables as at <span id="asof"></span></span>
     </div>
 
-    <div class="hero">
-      <h1>Corrugated <span class="fell">halved</span> in September, to 924&nbsp;tonnes.</h1>
-      <p id="herosub"></p>
-    </div>
 
   </div>
 </div>
@@ -813,14 +800,6 @@ function render(){
 }
 
 el("asof").textContent = M.asof;
-(function(){
-  const tr = D.trend.All, lastRow = tr[tr.length-1];
-  const buyersNow = lastRow.gcCust, buyersThen = tr[0].gcCust;
-  el("herosub").textContent =
-    "Plain coil held at "+t0(lastRow.gp)+" t, so the fall is corrugated alone. "
-    + "The number of buyers taking corrugated has dropped every month since "
-    + tr[0].m + ", from " + buyersThen + " to " + buyersNow + ".";
-})();
 el("footNote").textContent =
   "Covers "+M.rows.toLocaleString("en-IN")+" invoice lines, "+t0(M.totalT)+" tonnes and "
   + M.nCust + " customers.";
