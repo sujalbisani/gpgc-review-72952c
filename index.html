@@ -583,7 +583,14 @@ function drawTrend(){
     const gp = hGp>0.5 ? barPath(x, y(r.gp), bw, hGp, 3, hGc<=0.5) : null;
     if(gc){ gc.setAttribute("fill",C.gc); svg.appendChild(gc); }
     if(gp){ gp.setAttribute("fill",C.gp); svg.appendChild(gp); }
-    const lab = mk("text",{x:cx,y:H-9,"text-anchor":"middle","font-size":12,fill:C.slate});
+    // the month's total sits above every bar, not just the last one
+    const isLast = i===rows.length-1;
+    const tot = mk("text",{x:cx,y:y(r.t)-8,"text-anchor":"middle","font-size":12,
+      "font-weight":600,fill: isLast ? "#13232E" : C.slate});
+    tot.textContent = t0(r.t);
+    svg.appendChild(tot);
+    const lab = mk("text",{x:cx,y:H-9,"text-anchor":"middle","font-size":12,
+      fill: isLast ? "#13232E" : C.slate});
     lab.textContent = r.m;
     svg.appendChild(lab);
     const hit = mk("rect",{x:pad.l+step*i,y:pad.t,width:step,height:ih,fill:"transparent"});
@@ -591,12 +598,6 @@ function drawTrend(){
       `<b>${r.m}</b><br>Total ${t1(r.t)} t<br>GP ${t1(r.gp)} · GC ${t1(r.gc)} (${pct(r.gc,r.t)})`));
     svg.appendChild(hit);
   });
-  // direct label on the final month only
-  const last = rows[rows.length-1];
-  const lx = pad.l + step*(rows.length-1) + step/2;
-  const lv = mk("text",{x:lx,y:y(last.t)-8,"text-anchor":"middle","font-size":12.5,"font-weight":600,fill:"#13232E"});
-  lv.textContent = t0(last.t)+" t";
-  svg.appendChild(lv);
   bindTip(svg,tip);
 }
 
@@ -765,6 +766,11 @@ function drawCust(){
     const pGp = hGp>0.5 ? barPath(x, y(gp), bw, hGp, 3, hGc<=0.5) : null;
     if(pGc){ pGc.setAttribute("fill",C.gc); svg.appendChild(pGc); }
     if(pGp){ pGp.setAttribute("fill",C.gp); svg.appendChild(pGp); }
+    if(tot>0){
+      const tv=mk("text",{x:cx,y:y(tot)-7,"text-anchor":"middle","font-size":11.5,
+        "font-weight":600,fill:C.slate});
+      tv.textContent=t0(tot); svg.appendChild(tv);
+    }
     const lab=mk("text",{x:cx,y:H-9,"text-anchor":"middle","font-size":12,fill:C.slate});
     lab.textContent=m; svg.appendChild(lab);
     const hit=mk("rect",{x:pad.l+step*i,y:pad.t,width:step,height:ih,fill:"transparent"});
