@@ -350,6 +350,20 @@ function money(n){
 const el = id => document.getElementById(id);
 const ns = "http://www.w3.org/2000/svg";
 function mk(tag, attrs){const e=document.createElementNS(ns,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+
+/* A bar is rounded only at the value end and square where it meets the baseline
+   or the segment below it, so a stack reads as one bar rather than loose pills. */
+function barPath(x, y, w, h, r, roundTop){
+  if(h <= 0) return null;
+  const rr = roundTop ? Math.min(r, h, w/2) : 0;
+  return mk("path",{d:
+    "M"+x+","+(y+h)+
+    "V"+(y+rr)+
+    (rr ? "a"+rr+","+rr+" 0 0 1 "+rr+",-"+rr : "")+
+    "H"+(x+w-rr)+
+    (rr ? "a"+rr+","+rr+" 0 0 1 "+rr+","+rr : "")+
+    "V"+(y+h)+"Z"});
+}
 function clear(n){while(n.firstChild)n.removeChild(n.firstChild);}
 
 /* state */
@@ -389,8 +403,8 @@ function barChart(svgId, tipId, rows, pick, fmt, label){
     const v = pick(r), last = i===rows.length-1;
     const cx = pad.l+step*i+step/2, x = cx-bw/2;
     const h = Math.max(v>0?2:0,(v/max)*ih);
-    if(h>0) svg.appendChild(mk("rect",{x,y:y(v),width:bw,height:h,rx:3,
-      fill: last ? C.gc : "#8FB4C4"}));
+    const p = h>0 ? barPath(x, y(v), bw, h, 3, true) : null;
+    if(p){ p.setAttribute("fill", last ? C.gc : "#8FB4C4"); svg.appendChild(p); }
     const num = mk("text",{x:cx,y:y(v)-7,"text-anchor":"middle","font-size":11.5,
       "font-weight":600,fill: last ? C.gc : C.slate});
     num.textContent = fmt(v);
@@ -564,10 +578,11 @@ function drawTrend(){
     const cx = pad.l + step*i + step/2;
     const x = cx - bw/2;
     const hGp = (r.gp/max)*ih, hGc = (r.gc/max)*ih;
-    // 2px surface gap between the two stacked fills
-    const gcY = y(r.t), gpY = y(r.gp);
-    if(hGc>0.5) svg.appendChild(mk("rect",{x,y:gcY,width:bw,height:Math.max(1,hGc-2),rx:3,fill:C.gc}));
-    if(hGp>0.5) svg.appendChild(mk("rect",{x,y:gpY,width:bw,height:Math.max(1,hGp),rx:3,fill:C.gp}));
+    // the top segment carries the rounding; a 2px gap separates the two fills
+    const gc = hGc>0.5 ? barPath(x, y(r.t), bw, Math.max(1,hGc-2), 3, true) : null;
+    const gp = hGp>0.5 ? barPath(x, y(r.gp), bw, hGp, 3, hGc<=0.5) : null;
+    if(gc){ gc.setAttribute("fill",C.gc); svg.appendChild(gc); }
+    if(gp){ gp.setAttribute("fill",C.gp); svg.appendChild(gp); }
     const lab = mk("text",{x:cx,y:H-9,"text-anchor":"middle","font-size":12,fill:C.slate});
     lab.textContent = r.m;
     svg.appendChild(lab);
@@ -746,8 +761,10 @@ function drawCust(){
     const cx=pad.l+step*i+step/2, x=cx-bw/2;
     const tot=t.t[i], gp=t.gp[i], gc=t.gc[i];
     const hGp=(gp/max)*ih, hGc=(gc/max)*ih;
-    if(hGc>0.5) svg.appendChild(mk("rect",{x,y:y(tot),width:bw,height:Math.max(1,hGc-2),rx:3,fill:C.gc}));
-    if(hGp>0.5) svg.appendChild(mk("rect",{x,y:y(gp),width:bw,height:Math.max(1,hGp),rx:3,fill:C.gp}));
+    const pGc = hGc>0.5 ? barPath(x, y(tot), bw, Math.max(1,hGc-2), 3, true) : null;
+    const pGp = hGp>0.5 ? barPath(x, y(gp), bw, hGp, 3, hGc<=0.5) : null;
+    if(pGc){ pGc.setAttribute("fill",C.gc); svg.appendChild(pGc); }
+    if(pGp){ pGp.setAttribute("fill",C.gp); svg.appendChild(pGp); }
     const lab=mk("text",{x:cx,y:H-9,"text-anchor":"middle","font-size":12,fill:C.slate});
     lab.textContent=m; svg.appendChild(lab);
     const hit=mk("rect",{x:pad.l+step*i,y:pad.t,width:step,height:ih,fill:"transparent"});
