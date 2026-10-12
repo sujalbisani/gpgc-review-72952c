@@ -151,6 +151,9 @@ footer p{margin:0 0 5px;max-width:78ch}
 /* password gate */
 .gate{position:fixed;inset:0;background:var(--mill);display:flex;
   align-items:center;justify-content:center;padding:24px;z-index:50}
+/* display:flex above beats the hidden attribute, so say it explicitly or the
+   overlay stays on top of a page that has already loaded */
+.gate[hidden]{display:none}
 .gatebox{width:100%;max-width:380px}
 .gatebox h1{margin:0 0 10px;color:#FFF;font-size:26px;font-weight:600;letter-spacing:-.02em}
 .gatebox p{margin:0 0 20px;color:#9DB3C0;font-size:14px;line-height:1.55}
